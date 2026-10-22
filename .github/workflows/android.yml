@@ -14,7 +14,17 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - uses: android-actions/setup-android@v3
+      # SDK مثبّت مسبقاً على ubuntu-latest؛ نكتفي بقبول التراخيص (بدون setup-android الذي كان يفشل عند قبول التراخيص)
+      - name: Accept Android SDK licenses
+        shell: bash
+        run: |
+          set +e +o pipefail
+          SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          mkdir -p "$SDK/licenses"
+          echo -e "\n24333f8a63b6825ea9c5514f83c2829b004d1fee\n84831b9409646a918e30573bab4c9c91346d8abd\nd56f5187479451eabf01fb78af6dfcb131a6481e" > "$SDK/licenses/android-sdk-license"
+          echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd" > "$SDK/licenses/android-sdk-preview-license"
+          yes | "$SDK/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null 2>&1
+          exit 0
 
       # ---- جسر واتساب: whatsmeow (Go) → wabridge.aar عبر gomobile ----
       - uses: actions/setup-go@v5
