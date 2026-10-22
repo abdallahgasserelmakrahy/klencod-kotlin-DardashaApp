@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "713019683176",
+    "project_id": "dardasha-fe424",
+    "storage_bucket": "dardasha-fe424.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:713019683176:android:c05c273ddc7a5ee82fa6dd",
+        "android_client_info": {
+          "package_name": "com.klencod.dardasha"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArclILerIDNV69ArD8z5Mx9eGOkUJRd24"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

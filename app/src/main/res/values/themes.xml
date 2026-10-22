@@ -1,0 +1,14 @@
+<resources>
+    <style name="Theme.Dardasha" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/bg</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+
+    <!-- شاشة البدء الفورية (النظام يرسمها قبل تحميل أي كود): خلفية التطبيق + الشعار، تختفي عند أول إطار جاهز -->
+    <style name="Theme.Dardasha.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/bg</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_fg</item>
+        <item name="postSplashScreenTheme">@style/Theme.Dardasha</item>
+    </style>
+</resources>
