@@ -24,6 +24,8 @@ export PATH="$PATH:$(go env GOPATH)/bin"
 go install golang.org/x/mobile/cmd/gomobile@latest
 gomobile init
 go get go.mau.fi/whatsmeow@latest github.com/mattn/go-sqlite3 golang.org/x/mobile/bind google.golang.org/protobuf
+# Go الحديث يتطلب تسجيل gobind/gomobile كـ tool داخل go.mod
+go get -tool golang.org/x/mobile/cmd/gobind golang.org/x/mobile/cmd/gomobile 2>/dev/null || true
 go mod tidy
 mkdir -p ../app/libs
 gomobile bind -v -target=android/arm64,android/arm -androidapi 26 -o ../app/libs/wabridge.aar .
