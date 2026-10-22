@@ -14,7 +14,7 @@ jobs:
   build:
     name: Build debug APK
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
 
     steps:
       - name: Checkout project
@@ -34,6 +34,15 @@ jobs:
           packages: 'platforms;android-34 build-tools;34.0.0'
           accept-android-sdk-licenses: true
 
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - name: Build WhatsApp bridge
+        shell: bash
+        run: bash wabridge/build.sh
+
       - name: Build debug APK
         shell: bash
         run: |
@@ -47,7 +56,6 @@ jobs:
               :app:assembleDebug -x lint -x test 2>&1 | tee "$LOG"
           else
             echo "⚠️ gradlew غير موجود — استخدام gradle من النظام"
-            echo "ℹ️ هذا شائع في المشاريع المستوردة من الخارج"
             gradle --no-daemon --build-cache --parallel \
               :app:assembleDebug -x lint -x test 2>&1 | tee "$LOG"
           fi
