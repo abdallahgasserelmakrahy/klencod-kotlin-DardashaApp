@@ -84,10 +84,10 @@ fun WhatsAppScreen(vm: MainVM) {
                     )
                 }
             )
-            LazyColumn(Modifier.weight(1f).fillMaxWidth(), state = listState) {
+            LazyColumn(Modifier.weight(1f).fillMaxWidth(), state = listState, contentPadding = PaddingValues(bottom = LocalTabInset.current)) {
                 item(key = "title") {
                     Text(
-                        "واتساب", color = IOS.label, fontSize = 34.sp, fontWeight = FontWeight.Bold,
+                        "واتساب", color = IOS.label, fontSize = com.klencod.dardasha.data.AppSettings.largeTitleSp.sp, fontWeight = FontWeight.Bold,
                         modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 2.dp, bottom = 8.dp)
                     )
                 }

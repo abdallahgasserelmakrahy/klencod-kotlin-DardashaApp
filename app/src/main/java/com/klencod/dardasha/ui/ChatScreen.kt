@@ -909,8 +909,9 @@ private fun Bubble(
     val right = if (mine) rtl else !rtl
     // iMessage: زوايا 18dp، والزاوية السفلية الخارجية صغيرة عند وجود الذيل
     val bubbleShape = RoundedCornerShape(
-        topStart = 18.dp, topEnd = 18.dp,
-        bottomStart = if (mine && tail) 4.dp else 18.dp, bottomEnd = if (!mine && tail) 4.dp else 18.dp
+        topStart = AppSettings.bubbleRadius.dp, topEnd = AppSettings.bubbleRadius.dp,
+        bottomStart = if (mine && tail) minOf(4, AppSettings.bubbleRadius).dp else AppSettings.bubbleRadius.dp,
+        bottomEnd = if (!mine && tail) minOf(4, AppSettings.bubbleRadius).dp else AppSettings.bubbleRadius.dp
     )
     val bubbleColor = if (mine) WA.sent else WA.received
     val geo = parseGeo(m.text)
@@ -920,7 +921,7 @@ private fun Bubble(
     // صورة وحدها: تملأ الفقاعة بلا حشوة (مثل iMessage)
     val mediaOnly = !m.isDeleted && m.imagePath != null && m.viewOnce != true &&
         quoted == null && m.forwarded != true && !showText && m.audioPath == null && m.filePath == null
-    val maxW = (LocalConfiguration.current.screenWidthDp * 0.76f).dp.coerceAtLeast(280.dp)
+    val maxW = (screenWidthScaledDp() * AppSettings.bubbleMaxPct / 100f).dp.coerceAtLeast(200.dp)
     var showTime by remember { mutableStateOf(false) }
 
     val rowBg by animateColorAsState(
@@ -1061,7 +1062,7 @@ private fun Bubble(
             ) {
                 Column(
                     Modifier.padding(
-                        if (mediaOnly) PaddingValues(0.dp) else PaddingValues(horizontal = 12.dp, vertical = 7.dp)
+                        if (mediaOnly) PaddingValues(0.dp) else PaddingValues(horizontal = AppSettings.bubblePadH.dp, vertical = AppSettings.bubblePadV.dp)
                     )
                 ) {
                     if (m.isDeleted) {
@@ -1111,7 +1112,7 @@ private fun Bubble(
                             } else {
                                 StorageImage(
                                     "chat-images", m.imagePath,
-                                    Modifier.width(240.dp).heightIn(min = 120.dp, max = 320.dp)
+                                    Modifier.width(AppSettings.chatImageW.dp).heightIn(min = 120.dp, max = 320.dp)
                                         .then(if (mediaOnly) Modifier else Modifier.clip(RoundedCornerShape(10.dp)))
                                         .clickable { onImage(m.imagePath) }
                                 )

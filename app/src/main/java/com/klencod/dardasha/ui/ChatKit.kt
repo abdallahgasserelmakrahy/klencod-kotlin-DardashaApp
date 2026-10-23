@@ -44,6 +44,7 @@ import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.Composable
+import com.klencod.dardasha.data.AppSettings
 
 /** ألوان وأدوات شاشة المحادثة (iMessage: أسود/أبيض نقي، أزرق النظام، رمادي النظام). */
 internal object WA {
@@ -63,7 +64,11 @@ internal object WA {
     val glass: Color get() = if (d) Color(0xCC2C2C2E) else Color(0xCCF2F2F7)
     val glassStroke: Color get() = if (d) Color(0x1FFFFFFF) else Color(0x14000000)
     /** فقاعة المُرسِل: أزرق iMessage، والمستلم: رمادي النظام. */
-    val sent: Color get() = IOS.blue
+    val sent: Color get() = when (AppSettings.bubbleColorMode) {
+        1 -> C.accent
+        2 -> Color.hsl(AppSettings.bubbleHue.coerceIn(0, 359).toFloat(), 0.80f, if (d) 0.52f else 0.46f)
+        else -> IOS.blue
+    }
     val received: Color get() = IOS.bubbleIn
 }
 

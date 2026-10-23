@@ -37,6 +37,7 @@ import androidx.compose.material.icons.filled.Download
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.vector.ImageVector
 import coil.compose.AsyncImage
+import com.klencod.dardasha.data.AppSettings
 import com.klencod.dardasha.data.Media
 import com.klencod.dardasha.data.Repo
 
@@ -53,9 +54,11 @@ fun avGradient(name: String): Brush {
 
 @Composable
 fun Avatar(name: String, path: String?, size: Dp = 46.dp, online: Boolean = false, ring: Color = C.panel, plain: Boolean = false) {
-    Box(Modifier.size(size)) {
+    val sz = size * (AppSettings.avatarScale / 100f)
+    val avShape = if (AppSettings.avatarShape == 1) androidx.compose.foundation.shape.RoundedCornerShape(sz * 0.28f) else CircleShape
+    Box(Modifier.size(sz)) {
         Box(
-            Modifier.size(size).clip(CircleShape).background(
+            Modifier.size(sz).clip(avShape).background(
                 if (plain) Brush.verticalGradient(listOf(Color(0xFFA5ABB8), Color(0xFF858B98))) else avGradient(name)
             ),
             contentAlignment = Alignment.Center
@@ -64,7 +67,7 @@ fun Avatar(name: String, path: String?, size: Dp = 46.dp, online: Boolean = fals
                 name.take(2).uppercase(),
                 color = Color.White,
                 fontWeight = FontWeight.Bold,
-                fontSize = (size.value * 0.36f).sp
+                fontSize = (sz.value * 0.36f).sp
             )
             if (path != null) {
                 AsyncImage(

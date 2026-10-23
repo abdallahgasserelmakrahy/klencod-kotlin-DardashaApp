@@ -36,6 +36,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -160,15 +161,18 @@ private fun Root(vm: MainVM) {
             vm.meId == null || vm.addingAccount -> AuthScreen(vm)
             else -> {
                 val dir = if (LocalLayoutDirection.current == LayoutDirection.Rtl) -1 else 1
-                val screenW = with(LocalDensity.current) { LocalConfiguration.current.screenWidthDp.dp.toPx() }
+                val screenW = with(LocalDensity.current) { screenWidthScaledDp().dp.toPx() }
                 val popFlag = remember { booleanArrayOf(false) }
                 val peek = remember { BackPeek { backTargetOf(vm.route) } }
 
+                // مصدر الخلفية الزجاجية: كل المحتوى (الصفحات) يُلتقط ليُمَوَّه خلف كبسولة الشريط
+                val backdrop = rememberGlassBackdrop()
+                Box(Modifier.fillMaxSize().glassSource(backdrop).background(C.bg)) {
                 // الشاشة السابقة تظهر أسفل الصفحة أثناء السحب للرجوع (Parallax + تعتيم)
                 peek.route?.let { pr ->
                     Box(Modifier.fillMaxSize().graphicsLayer { translationX = dir * (-0.3f * screenW * (1f - peek.progress)) }) {
                         CompositionLocalProvider(LocalSkipAppear provides true, LocalBackPeek provides null) {
-                            RouteContent(vm, pr)
+                            TabRouteFrame(tabOf(pr) != null) { RouteContent(vm, pr) }
                         }
                         Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.18f * (1f - peek.progress))))
                     }
@@ -204,9 +208,24 @@ private fun Root(vm: MainVM) {
                         label = "nav"
                     ) { r ->
                         val skipAppear = remember { popFlag[0] }
-                        CompositionLocalProvider(LocalSkipAppear provides skipAppear) { RouteContent(vm, r) }
+                        CompositionLocalProvider(LocalSkipAppear provides skipAppear) { TabRouteFrame(tabOf(r) != null) { RouteContent(vm, r) } }
                     }
                 }
+                }
+
+                // شريط التبويبات العائم (iOS 26 Liquid Glass): فوق صفحات التبويبات، ويختفي عند فتح صفحة داخلية
+                val curTab = tabOf(vm.route)
+                val unreadTotal by remember {
+                    derivedStateOf { vm.conversations().filter { !vm.isArchived(it.first) }.sumOf { vm.unread(it.first) } }
+                }
+                IosTabBar(
+                    selected = curTab, enabled = curTab != null, chatsBadge = unreadTotal,
+                    backdrop = backdrop,
+                    onSelect = { t ->
+                        if (t == IosTab.WhatsApp) { vm.openWhatsApp() } else { vm.route = t.route }
+                    },
+                    modifier = Modifier.align(Alignment.BottomCenter)
+                )
             }
         }
     }
@@ -214,9 +233,11 @@ private fun Root(vm: MainVM) {
 
 /** عمق الشاشة في مسار التنقل: الأعمق يدخل Push والأقل يعود Pop. */
 private fun routeDepth(r: Route): Int = when (r) {
-    Route.Home -> 0
-    is Route.Conversation, Route.NewChat, Route.Me, Route.Archived, Route.Starred, Route.Settings, Route.WhatsApp -> 1
-    is Route.Contact, is Route.SettingsPage, is Route.WaChat, Route.WaLink -> 2
+    // تبويبات الشريط السفلي: التبديل بينها Fade بلا انزلاق (مثل iOS)
+    Route.Home, Route.Starred, Route.Settings, Route.WhatsApp -> 0
+    is Route.SettingsPage -> if (isCustomSubPage(r.section)) 2 else 1
+    is Route.Conversation, Route.NewChat, Route.Me, Route.Archived, is Route.WaChat, Route.WaLink -> 1
+    is Route.Contact -> 2
     is Route.Media -> 3
 }
 
@@ -224,7 +245,7 @@ private fun routeDepth(r: Route): Int = when (r) {
 private fun backTargetOf(r: Route): Route = when (r) {
     is Route.Contact -> Route.Conversation(r.peer)
     is Route.Media -> Route.Contact(r.peer)
-    is Route.SettingsPage -> Route.Settings
+    is Route.SettingsPage -> if (isCustomSubPage(r.section)) Route.SettingsPage(SettingsSection.Customize) else Route.Settings
     is Route.WaChat, Route.WaLink -> Route.WhatsApp
     else -> Route.Home
 }

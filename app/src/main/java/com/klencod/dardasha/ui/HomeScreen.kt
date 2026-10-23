@@ -107,14 +107,14 @@ import kotlin.math.roundToInt
 /** ألوان iOS النظامية (داكن/فاتح) تتبع وضع المظهر في التطبيق. */
 internal object IOS {
     private val d: Boolean get() = C.dark
-    val bg: Color get() = if (d) Color(0xFF000000) else Color(0xFFFFFFFF)
+    val bg: Color get() = if (d) when (AppSettings.darkBg) { 1 -> Color(0xFF121214); 2 -> Color(0xFF0A0E1A); else -> Color(0xFF000000) } else Color(0xFFFFFFFF)
     val pressed: Color get() = if (d) Color(0xFF2C2C2E) else Color(0xFFD1D1D6)
     val label: Color get() = if (d) Color(0xFFFFFFFF) else Color(0xFF000000)
     val secondary: Color get() = if (d) Color(0x99EBEBF5) else Color(0x993C3C43)
     val tertiary: Color get() = if (d) Color(0x4DEBEBF5) else Color(0x4D3C3C43)
     val separator: Color get() = if (d) Color(0xFF38383A) else Color(0xFFC6C6C8)
     val fill: Color get() = if (d) Color(0x3D767680) else Color(0x1F767680)
-    val blue: Color get() = if (d) Color(0xFF0A84FF) else Color(0xFF007AFF)
+    val blue: Color get() = if (AppSettings.iosUseAccent) C.accent else if (d) Color(0xFF0A84FF) else Color(0xFF007AFF)
     val red: Color get() = if (d) Color(0xFFFF453A) else Color(0xFFFF3B30)
     val orange: Color get() = if (d) Color(0xFFFF9F0A) else Color(0xFFFF9500)
     val indigo: Color get() = if (d) Color(0xFF5E5CE6) else Color(0xFF5856D6)
@@ -199,10 +199,10 @@ fun HomeScreen(vm: MainVM, archivedView: Boolean = false) {
         )
         if (accountsSheet) AccountsSheet(vm) { accountsSheet = false }
 
-        LazyColumn(Modifier.weight(1f).fillMaxWidth(), state = listState) {
+        LazyColumn(Modifier.weight(1f).fillMaxWidth(), state = listState, contentPadding = PaddingValues(bottom = LocalTabInset.current)) {
             item(key = "large-title") {
                 Text(
-                    title, color = IOS.label, fontSize = 34.sp, fontWeight = FontWeight.Bold,
+                    title, color = IOS.label, fontSize = AppSettings.largeTitleSp.sp, fontWeight = FontWeight.Bold,
                     modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 2.dp, bottom = 4.dp)
                 )
             }
@@ -542,7 +542,7 @@ private fun ConvRow(
         )
     ) {
         Row(
-            Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 10.dp),
+            Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = AppSettings.listRowPad.dp, bottom = AppSettings.listRowPad.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             AnimatedVisibility(
@@ -568,7 +568,7 @@ private fun ConvRow(
             Column(Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        name, color = IOS.label, fontSize = 17.sp, fontWeight = FontWeight.SemiBold,
+                        name, color = IOS.label, fontSize = AppSettings.listNameSp.sp, fontWeight = FontWeight.SemiBold,
                         maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false)
                     )
                     if (muted) {
@@ -602,7 +602,7 @@ private fun ConvRow(
                                 Text("مسودة: ", color = IOS.red, fontSize = 15.sp)
                                 Text(draft, color = IOS.secondary, fontSize = 15.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
                             } else Text(
-                                vm.preview(last), color = IOS.secondary, fontSize = 15.sp,
+                                vm.preview(last), color = IOS.secondary, fontSize = AppSettings.listPreviewSp.sp,
                                 maxLines = 2, overflow = TextOverflow.Ellipsis
                             )
                         }

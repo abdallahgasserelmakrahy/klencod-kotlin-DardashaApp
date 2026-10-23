@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.BrightnessAuto
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.DarkMode
@@ -93,7 +94,7 @@ private val IosTeal: Color get() = Color(0xFF32ADE6)
  * خلفية Grouped، سحب من الحافة للرجوع، وطبقة [overlay] للـ Action Sheets.
  */
 @Composable
-private fun SettingsScaffold(
+internal fun SettingsScaffold(
     title: String, backLabel: String, onBack: () -> Unit,
     overlay: @Composable BoxScope.() -> Unit = {},
     content: @Composable ColumnScope.() -> Unit,
@@ -108,11 +109,11 @@ private fun SettingsScaffold(
             IosTopBar(title, onBack = onBack, separatorVisible = collapsed, backLabel = backLabel, titleAlpha = titleAlpha)
             Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(scroll).padding(horizontal = 16.dp)) {
                 Text(
-                    title, color = IOS.label, fontSize = 34.sp, fontWeight = FontWeight.Bold, lineHeight = 40.sp,
+                    title, color = IOS.label, fontSize = AppSettings.largeTitleSp.sp, fontWeight = FontWeight.Bold, lineHeight = (AppSettings.largeTitleSp + 6).sp,
                     modifier = Modifier.fillMaxWidth().padding(top = 2.dp, bottom = 2.dp)
                 )
                 content()
-                Spacer(Modifier.height(40.dp))
+                Spacer(Modifier.height(40.dp + LocalTabInset.current))
             }
         }
     }
@@ -120,7 +121,7 @@ private fun SettingsScaffold(
 
 /** مجموعة (Inset Grouped) بعنوان وتذييل اختياريين. */
 @Composable
-private fun SGroup(header: String? = null, footer: String? = null, content: @Composable ColumnScope.() -> Unit) {
+internal fun SGroup(header: String? = null, footer: String? = null, content: @Composable ColumnScope.() -> Unit) {
     Column(Modifier.fillMaxWidth().padding(top = 24.dp)) {
         IGroup(header, content)
         if (footer != null) IFooter(footer)
@@ -129,7 +130,7 @@ private fun SGroup(header: String? = null, footer: String? = null, content: @Com
 
 /** خلية عامة: أيقونة ملوّنة اختيارية + عنوان + قيمة + عنصر نهاية + سهم. */
 @Composable
-private fun SCell(
+internal fun SCell(
     title: String, last: Boolean,
     icon: ImageVector? = null, tint: Color = IOS.blue,
     value: String? = null, chevron: Boolean = false,
@@ -139,7 +140,7 @@ private fun SCell(
 ) {
     RowBox(last, inset = if (icon != null) 58.dp else 16.dp, onClick = onClick) {
         Row(
-            Modifier.fillMaxWidth().heightIn(min = 46.dp).padding(horizontal = 16.dp, vertical = 8.dp),
+            Modifier.fillMaxWidth().heightIn(min = AppSettings.rowHeight.dp).padding(horizontal = 16.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (icon != null) {
@@ -167,7 +168,7 @@ private fun SCell(
 
 /** صف بمفتاح iOS الأخضر. */
 @Composable
-private fun SSwitch(
+internal fun SSwitch(
     title: String, checked: Boolean, last: Boolean, icon: ImageVector? = null, tint: Color = IOS.blue,
     enabled: Boolean = true, onChange: (Boolean) -> Unit,
 ) {
@@ -185,7 +186,7 @@ private fun SSwitch(
 
 /** صف اختيار بعلامة ✓ زرقاء. */
 @Composable
-private fun SCheck(
+internal fun SCheck(
     title: String, selected: Boolean, last: Boolean, icon: ImageVector? = null, tint: Color = IOS.blue,
     onClick: () -> Unit,
 ) {
@@ -199,7 +200,7 @@ private fun SCheck(
 
 /** صف نصّي في المنتصف (للإجراءات المدمّرة مثل تسجيل الخروج). */
 @Composable
-private fun SCenter(title: String, color: Color, last: Boolean = true, onClick: () -> Unit) {
+internal fun SCenter(title: String, color: Color, last: Boolean = true, onClick: () -> Unit) {
     RowBox(last, inset = 16.dp, onClick = onClick) {
         Box(Modifier.fillMaxWidth().heightIn(min = 46.dp).padding(horizontal = 16.dp), contentAlignment = Alignment.Center) {
             Text(title, color = color, fontSize = 17.sp)
@@ -289,7 +290,7 @@ fun SettingsScreen(vm: MainVM) {
             IosTopBar("الإعدادات", onBack = goBack, separatorVisible = collapsed, backLabel = "دردشة", titleAlpha = titleAlpha)
             Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(scroll).padding(horizontal = 16.dp)) {
                 Text(
-                    "الإعدادات", color = IOS.label, fontSize = 34.sp, fontWeight = FontWeight.Bold,
+                    "الإعدادات", color = IOS.label, fontSize = AppSettings.largeTitleSp.sp, fontWeight = FontWeight.Bold,
                     modifier = Modifier.fillMaxWidth().padding(top = 2.dp, bottom = 10.dp)
                 )
 
@@ -344,6 +345,7 @@ fun SettingsScreen(vm: MainVM) {
                 Spacer(Modifier.height(30.dp))
                 Appear(3) {
                     IGroup {
+                        IRow(Icons.Filled.Tune, IOS.blue, "التخصيص والأحجام", last = false, chevron = true) { open(SettingsSection.Customize) }
                         IRow(Icons.Filled.Palette, IOS.indigo, "المظهر", last = false, chevron = true) { open(SettingsSection.Appearance) }
                         IRow(Icons.Filled.Storage, IOS.orange, "التخزين والبيانات", last = false, chevron = true) { open(SettingsSection.Storage) }
                         IRow(Icons.Filled.Info, IOS.blue, "المساعدة وحول التطبيق", last = true, chevron = true) { open(SettingsSection.Help) }
@@ -360,7 +362,7 @@ fun SettingsScreen(vm: MainVM) {
                 Text(
                     "دردشة  •  الإصدار $version", color = IOS.secondary, fontSize = 13.sp,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth().padding(top = 24.dp, bottom = 32.dp)
+                    modifier = Modifier.fillMaxWidth().padding(top = 24.dp, bottom = 32.dp + LocalTabInset.current)
                 )
             }
         }
@@ -380,6 +382,11 @@ fun SettingsPageScreen(vm: MainVM, section: SettingsSection) {
         SettingsSection.Storage -> StoragePage(vm)
         SettingsSection.Blocked -> BlockedPage(vm)
         SettingsSection.Help -> HelpPage(vm)
+        SettingsSection.Customize -> CustomizeHubPage(vm)
+        SettingsSection.CustomColors -> CustomColorsPage(vm)
+        SettingsSection.CustomSizes -> CustomSizesPage(vm)
+        SettingsSection.CustomBubbles -> CustomBubblesPage(vm)
+        SettingsSection.CustomTabBar -> CustomTabBarPage(vm)
     }
 }
 
@@ -530,6 +537,7 @@ private fun ChatsPage(vm: MainVM) {
             Box(Modifier.fillMaxWidth().padding(12.dp)) {
                 IosSegmented(FONT_LABELS, AppSettings.fontSize.coerceIn(0, 3)) {
                     haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    AppSettings.msgFontCustom = 0
                     AppSettings.fontSize = it
                 }
             }

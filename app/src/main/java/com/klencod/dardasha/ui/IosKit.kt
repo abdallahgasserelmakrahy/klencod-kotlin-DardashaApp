@@ -94,7 +94,7 @@ internal fun IosPage(
     val scope = rememberCoroutineScope()
     val back by rememberUpdatedState(onBack)
     val dir = if (LocalLayoutDirection.current == LayoutDirection.Rtl) -1f else 1f
-    val screenW = with(LocalDensity.current) { LocalConfiguration.current.screenWidthDp.dp.toPx() }
+    val screenW = with(LocalDensity.current) { screenWidthScaledDp().dp.toPx() }
     val dragA = remember { Animatable(0f) }
     val peek = LocalBackPeek.current
 
@@ -105,7 +105,7 @@ internal fun IosPage(
     ) {
         Box(Modifier.fillMaxSize().safeDrawingPadding()) {
             content()
-            Box(
+            if (!LocalIsTabRoot.current) Box(
                 Modifier.align(Alignment.CenterStart).fillMaxHeight().width(28.dp).pointerInput(screenW, dir, peek) {
                     detectHorizontalDragGestures(
                         onDragStart = { peek?.begin() },
@@ -155,7 +155,7 @@ internal fun IosTopBar(
             maxLines = 1, overflow = TextOverflow.Ellipsis,
             modifier = Modifier.align(Alignment.Center).padding(horizontal = 96.dp).alpha(titleAlpha)
         )
-        if (onBack != null) {
+        if (onBack != null && !LocalIsTabRoot.current) {
             val src = remember { MutableInteractionSource() }
             val pressed by src.collectIsPressedAsState()
             Row(

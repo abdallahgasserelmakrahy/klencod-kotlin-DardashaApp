@@ -62,7 +62,11 @@ sealed interface Route {
     data class SettingsPage(val section: SettingsSection) : Route
 }
 
-enum class SettingsSection { Account, Privacy, Chats, Notifications, WhatsApp, Plus, Appearance, Storage, Blocked, Help }
+enum class SettingsSection {
+    Account, Privacy, Chats, Notifications, WhatsApp, Plus, Appearance, Storage, Blocked, Help,
+    /** قسم التخصيص والأحجام وصفحاته الفرعية. */
+    Customize, CustomColors, CustomSizes, CustomBubbles, CustomTabBar
+}
 
 private const val ACTIVE_KEY = "active_id"
 private const val MAX_PINS = 3

@@ -28,6 +28,21 @@ val ACCENTS = listOf(
     AccentPalette("وردي", Color(0xFFFF7AAE), Color(0xFF3A0A1F), Color(0xFF9B2F5B), Color(0xFFC13171), Color(0xFFFFD8E8)),
 )
 
+/** لون تمييز مخصص من درجة لون (Hue) يختارها المستخدم. */
+fun customPalette(hue: Int): AccentPalette {
+    val h = hue.coerceIn(0, 359).toFloat()
+    return AccentPalette(
+        "مخصص",
+        dark = Color.hsl(h, 0.80f, 0.62f), onDark = Color.hsl(h, 0.80f, 0.10f), mineDark = Color.hsl(h, 0.60f, 0.28f),
+        light = Color.hsl(h, 0.75f, 0.40f), mineLight = Color.hsl(h, 0.70f, 0.88f),
+    )
+}
+
+/** عرض الشاشة بوحدات dp بعد تطبيق «حجم الواجهة» (الكثافة المعدَّلة). */
+@Composable
+internal fun screenWidthScaledDp(): Float =
+    androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp / (AppSettings.uiScale / 100f)
+
 /**
  * ألوان التطبيق. كل خاصية تقرأ إعدادات المظهر (حالة Compose) فتتبدّل الواجهة فوراً
  * عند تغيير الوضع (داكن/فاتح/حسب النظام) أو لون التمييز.
@@ -37,7 +52,9 @@ object C {
     @Volatile var systemDark: Boolean = true
 
     val dark: Boolean get() = when (AppSettings.theme) { 0 -> systemDark; 1 -> false; else -> true }
-    private val ac: AccentPalette get() = ACCENTS[AppSettings.accent.coerceIn(0, ACCENTS.lastIndex)]
+    private val ac: AccentPalette get() =
+        if (AppSettings.accent >= ACCENTS.size) customPalette(AppSettings.customHue)
+        else ACCENTS[AppSettings.accent.coerceIn(0, ACCENTS.lastIndex)]
 
     val bg: Color get() = if (dark) Color(0xFF0A1114) else Color(0xFFE9EDF0)
     val panel: Color get() = if (dark) Color(0xFF101A20) else Color(0xFFFFFFFF)
@@ -84,6 +101,13 @@ fun DardashaTheme(content: @Composable () -> Unit) {
         error = C.err,
         outline = C.line,
     )
+    // «حجم الواجهة» و«حجم الخط» العامّان: يكبّران/يصغّران كل شيء (أبعاد، أيقونات، نصوص)
+    val base = androidx.compose.ui.platform.LocalDensity.current
+    val scaled = androidx.compose.ui.unit.Density(
+        base.density * AppSettings.uiScale / 100f,
+        base.fontScale * AppSettings.textScale / 100f
+    )
+    CompositionLocalProvider(androidx.compose.ui.platform.LocalDensity provides scaled) {
     MaterialTheme(colorScheme = scheme) {
         // iOS: لا موجة Ripple في أي مكان، ومقابض/تحديد النص زرقاء مثل UIKit
         CompositionLocalProvider(
@@ -93,5 +117,6 @@ fun DardashaTheme(content: @Composable () -> Unit) {
             ),
             content = content
         )
+    }
     }
 }

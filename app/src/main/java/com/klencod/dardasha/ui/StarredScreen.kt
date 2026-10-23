@@ -83,10 +83,10 @@ fun StarredScreen(vm: MainVM) {
             )
             if (all.isEmpty()) {
                 StarredEmpty()
-            } else LazyColumn(Modifier.weight(1f).fillMaxWidth(), state = listState) {
+            } else LazyColumn(Modifier.weight(1f).fillMaxWidth(), state = listState, contentPadding = PaddingValues(bottom = LocalTabInset.current)) {
                 item(key = "large-title") {
                     Text(
-                        "الرسائل المميّزة", color = IOS.label, fontSize = 34.sp, fontWeight = FontWeight.Bold,
+                        "الرسائل المميّزة", color = IOS.label, fontSize = com.klencod.dardasha.data.AppSettings.largeTitleSp.sp, fontWeight = FontWeight.Bold,
                         modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 2.dp, bottom = 4.dp)
                     )
                 }
